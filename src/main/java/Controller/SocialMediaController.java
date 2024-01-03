@@ -60,7 +60,7 @@ public class SocialMediaController {
     private void registerHandler(Context context) throws JsonProcessingException, SQLException{
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
-        Account registeredAccount = accountService.registerAccount(account);
+        Account registeredAccount = accountService.registerAccount(account.getUsername(), account.getPassword());
         if(registeredAccount != null){
             context.json(registeredAccount);
             context.status(200);
@@ -72,7 +72,7 @@ public class SocialMediaController {
     private void loginHandler(Context context) throws JsonProcessingException, SQLException{
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
-        Account loggedInAccount = accountService.login(account);
+        Account loggedInAccount = accountService.login(account.getUsername(), account.getPassword());
         if(loggedInAccount != null){
             context.json(loggedInAccount);
             context.status(200);
@@ -84,7 +84,7 @@ public class SocialMediaController {
     private void postMessageHandler(Context context) throws JsonProcessingException, SQLException{
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(context.body(), Message.class);
-        Message postedMessage = messageService.postMessage(message);
+        Message postedMessage = messageService.postMessage(message.getPosted_by(), message.getMessage_text(), message.getTime_posted_epoch());
         if(postedMessage != null) {
             context.json(postedMessage);
             context.status(200);
@@ -99,7 +99,6 @@ public class SocialMediaController {
     }
 
     private void getMessageByIdHandler(Context context)throws SQLException{
-        System.out.println(context.pathParam("message_id"));
         Message message = messageService.getMessageById(Integer.parseInt(context.pathParam("message_id")));
         if(message != null){
             context.json(message);
@@ -115,8 +114,11 @@ public class SocialMediaController {
 
     private void patchMessageHandler(Context context) throws JsonProcessingException , SQLException{ 
         ObjectMapper mapper = new ObjectMapper();
-        String message_text = mapper.readValue(context.body(), String.class);
-        Message updatedMessage = messageService.patchMessage(Integer.parseInt(context.pathParam("message_id")), message_text);
+        Message message = mapper.readValue(context.body(), Message.class);
+        System.out.println(message.toString());
+        String message_text = message.getMessage_text();
+        int message_id = Integer.parseInt(context.pathParam("message_id"));
+        Message updatedMessage = messageService.patchMessage(message_id, message_text);
         if(updatedMessage != null){
             context.json(updatedMessage);
             context.status(200);
