@@ -62,7 +62,8 @@ public class SocialMediaController {
         Account account = mapper.readValue(context.body(), Account.class);
         Account registeredAccount = accountService.registerAccount(account);
         if(registeredAccount != null){
-            context.json(mapper.writeValueAsString(registeredAccount));
+            context.json(registeredAccount);
+            context.status(200);
         } else {
             context.status(400);
         }
@@ -73,7 +74,8 @@ public class SocialMediaController {
         Account account = mapper.readValue(context.body(), Account.class);
         Account loggedInAccount = accountService.login(account);
         if(loggedInAccount != null){
-            context.json(mapper.writeValueAsString(loggedInAccount));
+            context.json(loggedInAccount);
+            context.status(200);
         } else {
             context.status(401);
         }
@@ -84,7 +86,8 @@ public class SocialMediaController {
         Message message = mapper.readValue(context.body(), Message.class);
         Message postedMessage = messageService.postMessage(message);
         if(postedMessage != null) {
-            context.json(mapper.writeValueAsString(postedMessage));
+            context.json(postedMessage);
+            context.status(200);
         } else {
             context.status(400);
         }
@@ -96,32 +99,34 @@ public class SocialMediaController {
     }
 
     private void getMessageByIdHandler(Context context)throws SQLException{
-        Message message = messageService.getMessageById(context.pathParam("message_id"));
-        context.json(message.toString());
+        System.out.println(context.pathParam("message_id"));
+        Message message = messageService.getMessageById(Integer.parseInt(context.pathParam("message_id")));
+        if(message != null){
+            context.json(message);
+        }
     }
 
     private void deleteMessageHandler(Context context)throws SQLException{
-        Message message = messageService.deleteMessageById(context.pathParam("message_id"));
+        Message message = messageService.deleteMessageById(Integer.parseInt(context.pathParam("message_id")));
         if(message != null){
-             context.json(message.toString());
-        } else {
-            context.json("");
+             context.json(message);
         }
     }
 
     private void patchMessageHandler(Context context) throws JsonProcessingException , SQLException{ 
         ObjectMapper mapper = new ObjectMapper();
-        Message message_text = mapper.readValue(context.body(), Message.class);
-        Message updatedMessage = messageService.patchMessage(context.pathParam("message_id"), message_text);
+        String message_text = mapper.readValue(context.body(), String.class);
+        Message updatedMessage = messageService.patchMessage(Integer.parseInt(context.pathParam("message_id")), message_text);
         if(updatedMessage != null){
-            context.json(mapper.writeValueAsString(updatedMessage));
+            context.json(updatedMessage);
+            context.status(200);
         } else {
             context.status(400);
         }
     }
 
     private void getAllMessagesFromUserHandler(Context context)throws SQLException{
-        List<Message> usersMessages = messageService.getMessagesFromAccount(context.pathParam("account_id"));
+        List<Message> usersMessages = messageService.getMessagesFromAccount(Integer.parseInt(context.pathParam("account_id")));
         context.json(usersMessages);
     }
 
