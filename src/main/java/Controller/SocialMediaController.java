@@ -115,7 +115,6 @@ public class SocialMediaController {
     private void patchMessageHandler(Context context) throws JsonProcessingException , SQLException{ 
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(context.body(), Message.class);
-        System.out.println(message.toString());
         String message_text = message.getMessage_text();
         int message_id = Integer.parseInt(context.pathParam("message_id"));
         Message updatedMessage = messageService.patchMessage(message_id, message_text);
